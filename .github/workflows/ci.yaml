@@ -41,3 +41,25 @@ jobs:
           tags: |
             gustavokubiack/mail-api:latest
             gustavokubiack/mail-api:${{ github.sha }}
+
+      - name: Clone infra repository
+        run: |
+          git clone https://x-access-token:${{ secrets.TARGET_REPO_TOKEN }}@github.com/gustavokubiack/mail-ops.git
+          cd mail-ops
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v2
+
+      - name: Update Kustomize
+        run: |
+          cd mail-ops/k8s/backend
+          kustomize edit set image gustavokubiack/mail-api=gustavokubiack/mail-api:${{ github.sha }}
+
+      - name: Push changes
+        run: |
+          cd mail-ops
+          git add .
+          git commit -m "Update image to ${{ github.sha }}"
+          git push origin main
