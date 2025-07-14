@@ -22,7 +22,12 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: 'app.settings'
+          DEBUG: ${{ secrets.DEBUG }}
+
         run: |
+          python manage.py migrate
           pytest
 
       - name: Login to DockerHub
